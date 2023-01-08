@@ -4,7 +4,7 @@ from flask_smorest import Api
 from resources.item import blp as ItemBlueprint
 from resources.store import blp as StoreBlueprint
 
-app = Flask(__name__) #creating the app and other many things including being able to run the app 
+app = Flask(__name__) 
 
 app.config["PROPAGATE_EXCEPTIONS"] = True
 app.config["API_TITLE"] = "Stores REST API"
