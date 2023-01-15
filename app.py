@@ -2,13 +2,12 @@ import os
 import secrets
 
 from flask import Flask, jsonify
-from flask_smorest import Api
 from flask_jwt_extended import JWTManager
+from flask_smorest import Api
 
-
-from db import db
 import models
-
+from blocklist import BLOCKLIST
+from db import db
 from resources.item import blp as ItemBlueprint
 from resources.store import blp as StoreBlueprint
 from resources.tag import blp as TagBlueprint
@@ -33,6 +32,37 @@ def create_app(db_url=None):
 
     app.config["JWT_SECRET_KEY"] = "dezin"
     jwt = JWTManager(app)
+
+    @jwt.token_in_blocklist_loader #whenever we receive a JWT
+    def check_if_token_in_blocklist(jwt_header, jwt_payload):   #this function runs
+        return jwt_payload["jti"] in BLOCKLIST #and it checks if the token is in the blocklist
+
+    @jwt.revoked_token_loader
+    def revoked_token_callback(jwt_header, jwt_payload):
+        return(
+            jsonify(
+                {"description": "The token has been revoked.", "error": "token_revoked"}
+            ),
+            401,
+        )
+    
+    @jwt.needs_fresh_token_loader
+    def token_not_fresh_callback(jwt_header, jwt_payload):
+        return(
+            jsonify(
+                {
+                    "description": "The token is not fresh.",
+                    "error": "fresh_token_required",
+                }
+            ),
+            401,
+        )
+
+    @jwt.additional_claims_loader
+    def add_claims_to_jwt(identity):
+        if identity == 1:  #defining that the user with ID=1 is the admin
+            return {"is_admin": True}
+        return {"is_admin": False}
 
     @jwt.expired_token_loader
     def expired_token_callback(jwt_header, jwt_payload):
