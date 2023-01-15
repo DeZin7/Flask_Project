@@ -3,6 +3,7 @@ import secrets
 
 from flask import Flask, jsonify
 from flask_jwt_extended import JWTManager
+from flask_migrate import Migrate
 from flask_smorest import Api
 
 import models
@@ -27,7 +28,7 @@ def create_app(db_url=None):
     app.config["SQLALCHEMY_DATABASE_URI"] = db_url or os.getenv("DATABASE_URL", "sqlite:///data.db")  #valid SQLite connection string that creates a file called data.db
     app.config["SQLACHEMY_TRACK_MODIFICATIONS"] = False 
     db.init_app(app) #initializing the FlaskSQLAlchemy extension
-
+    migrate = Migrate(app, db)
     api = Api(app)
 
     app.config["JWT_SECRET_KEY"] = "dezin"
@@ -90,9 +91,7 @@ def create_app(db_url=None):
             401,
         )
 
-    @app.before_first_request
-    def create_tables():
-        db.create_all()  #creating all our tables in our databse. It is going to run just if the tables dont already exist
+    
 
 
     api.register_blueprint(ItemBlueprint)
