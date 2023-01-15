@@ -21,6 +21,7 @@ def upgrade():
         "invoices",
         sa.Column("enable_downloads", sa.Boolean(), nullable=True, default=False),
     )
+    op.execute("UPDATE invoices SET enable_downloads = False")
 
     # ### end Alembic commands ###
 
