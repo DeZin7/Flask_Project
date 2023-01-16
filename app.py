@@ -1,6 +1,7 @@
 import os
 import secrets
 
+from dotenv import load_dotenv
 from flask import Flask, jsonify
 from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
@@ -16,7 +17,8 @@ from resources.user import blp as UserBlueprint
 
 
 def create_app(db_url=None):
-    app = Flask(__name__) 
+    app = Flask(__name__)
+    load_dotenv() #it will find a .env file existing at the root of the project and will load it contents
 
     app.config["PROPAGATE_EXCEPTIONS"] = True
     app.config["API_TITLE"] = "Stores REST API"
